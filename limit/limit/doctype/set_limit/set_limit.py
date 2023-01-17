@@ -47,6 +47,9 @@ class SetLimit(Document):
 				"space": self.max_space,
 				"expiry": self.site_expiry,
 				"support_email":self.support_email,
-				"support_phone":self.support_phone
+				"support_phone":self.support_phone,
+				"bank_account_No":self.bank_account_number,
+				"subscription_fees":self.subscription_fees
+
 			}
 		return frappe._dict(set_limits)		
