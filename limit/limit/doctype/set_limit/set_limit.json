@@ -14,8 +14,10 @@
   "support_col",
   "support_email",
   "support_phone",
-  "bank_account_number",
-  "subscription_fees"
+  "bank_name",
+  "subscription_fees",
+  "beneficiary",
+  "iban"
  ],
  "fields": [
   {
@@ -77,21 +79,31 @@
    "label": "[1] When not using a particular limit restriction, increase its value to a high no. [2]Uninstall the limit app if not using restrictions"
   },
   {
-   "fieldname": "bank_account_number",
-   "fieldtype": "Data",
-   "label": "Bank Account Number"
-  },
-  {
    "fieldname": "subscription_fees",
    "fieldtype": "Currency",
    "label": "Subscription Fees"
+  },
+  {
+   "fieldname": "beneficiary",
+   "fieldtype": "Data",
+   "label": "Beneficiary"
+  },
+  {
+   "fieldname": "iban",
+   "fieldtype": "Data",
+   "label": "IBAN"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank  Name"
   }
  ],
  "hide_toolbar": 1,
  "in_create": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-01-17 14:15:58.641375",
+ "modified": "2023-01-17 23:56:49.423560",
  "modified_by": "Administrator",
  "module": "Limit",
  "name": "Set Limit",

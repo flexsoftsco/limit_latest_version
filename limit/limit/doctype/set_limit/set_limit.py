@@ -48,8 +48,9 @@ class SetLimit(Document):
 				"expiry": self.site_expiry,
 				"support_email":self.support_email,
 				"support_phone":self.support_phone,
-				"bank_account_No":self.bank_account_number,
-				"subscription_fees":self.subscription_fees
-
+				"bank_name":self.bank_name,
+				"subscription_fees":self.subscription_fees,
+				"beneficiary":self.beneficiary,
+				"iban":self.iban
 			}
 		return frappe._dict(set_limits)		
