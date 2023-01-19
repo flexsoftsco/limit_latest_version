@@ -34,17 +34,30 @@ def check_if_expired():
 	expires_on = formatdate(limits.get("expiry"))
 	support_email = limits.get("support_email")
 	support_phone = limits.get("support_phone")
+	bank_name = limits.get("bank_name")
+	subscription_fees = limits.get("subscription_fees")
+	beneficiary = limits.get("beneficiary")
+	IBAN = limits.get("iban")
 	
-	if support_email and support_phone:
-		message = _("""Your subscription for {0} has expired on {1}. <br>To renew, Email us : <b>{2}</b> or <br>Contact us : <b>{3}</b>""").format(frappe.local.site,expires_on,support_email,support_phone)
+	message = ''
+	if support_email :
+		message += _("""Your subscription for {0} has expired on {1}. <br>To renew, Email us : <b>{2}</b>""").format(frappe.local.site,expires_on,support_email)
 
-	elif support_email:
-		message = _("""Your subscription for {0} has expired on {1}. <br>To renew, Email us : <b>{2}</b>""").format(frappe.local.site,expires_on,support_email)
+	if support_phone:
+		message += _(""" or <br>Contact us : <b>{0}</b>""").format(support_phone)
 
-	else:
-		# no recourse just quit
-		return
+	if bank_name:
+		message += _("""<br>Bank Name : <b>{0}</b>""").format(bank_name)
+
+	if subscription_fees:
+		message += _(""" <br>Subscription fees : <b>{0}</b>""").format(subscription_fees)
+
+	if beneficiary:
+		message += _(""" <br>Beneficiary : <b>{0}</b>""").format(beneficiary)
 	
+	if IBAN:
+		message += _(""" <br>IBAN : <b>{0}</b>""").format(IBAN)
+
 	frappe.throw(msg=message,title='Subscription Expired', exc=SiteExpiredError)
 	logout()
 
