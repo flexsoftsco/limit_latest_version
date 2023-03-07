@@ -18,19 +18,58 @@ from limit.utils.user import disable_users
 class SiteExpiredError(frappe.ValidationError):
 	http_status_code = 417
 
-EXPIRY_WARNING_DAYS = 10
+EXPIRY_WARNING_DAYS = 15
+
+@frappe.whitelist()
+def get_warning_for_expiry():
+	### warn user if expriy equals  EXPIRY_WARNING_DAYS or less
+	message = ''
+	expires_on = get_expiry()
+	if expires_on :
+		today = now_datetime().date()
+		days_to_expiry = (expires_on - today).days
+		if days_to_expiry <= EXPIRY_WARNING_DAYS and days_to_expiry >= 0 :
+			message = get_user_expiry_message (waringing=1,days_to_expire=days_to_expiry)
+	return message
 
 def check_if_expired():
-	print('check_if_expired'*100,has_expired())
+	print('check_if_expired',has_expired())
+
 	"""check if account is expired. If expired, do not allow login"""
 	if not has_expired():
 		return
+	message = get_user_expiry_message ()
+	if message :
+		frappe.throw(msg=message,title='Subscription Expired', exc=SiteExpiredError)
+		logout()
 
+
+def get_expiry():
+	expire_date = None
+	expires_on = get_limits().expiry
+	if expires_on :
+		expire_date = getdate(expires_on)
+	return expire_date	
+
+def has_expired():
+	user = (frappe.form_dict and frappe.form_dict.get("usr") or "").lower()
+	if frappe.session.user=="Administrator"  or user=='administrator' :
+		return False
+
+	expires_on = get_limits().expiry
+	print('expires_on',expires_on)
+	if not expires_on:
+		return False
+	if now_datetime().date() <= getdate(expires_on):
+		return False
+
+	return True
+
+def get_user_expiry_message(waringing=0, days_to_expire=0):
+	message = ''
 	limits = get_limits()
-	expiry = limits.get("expiry")
-
-	if not expiry:
-		return
+	if not limits.expiry:
+		return message
 	expires_on = formatdate(limits.get("expiry"))
 	support_email = limits.get("support_email")
 	support_phone = limits.get("support_phone")
@@ -38,10 +77,9 @@ def check_if_expired():
 	subscription_fees = limits.get("subscription_fees")
 	beneficiary = limits.get("beneficiary")
 	IBAN = limits.get("iban")
-	
-	message = ''
+	expire_info =  f'will expire After {days_to_expire} days' if waringing else f'has expired on {expires_on}'
 	if support_email :
-		message += _("""Your subscription for {0} has expired on {1}. <br>To renew, Email us : <b>{2}</b>""").format(frappe.local.site,expires_on,support_email)
+		message += _(f"Your subscription for {frappe.local.site} {expire_info}. <br>To renew, Email us : <b>{support_email}</b>")
 
 	if support_phone:
 		message += _(""" or <br>Contact us : <b>{0}</b>""").format(support_phone)
@@ -58,22 +96,7 @@ def check_if_expired():
 	if IBAN:
 		message += _(""" <br>IBAN : <b>{0}</b>""").format(IBAN)
 
-	frappe.throw(msg=message,title='Subscription Expired', exc=SiteExpiredError)
-	logout()
-
-def has_expired():
-	user = (frappe.form_dict and frappe.form_dict.get("usr") or "").lower()
-	if frappe.session.user=="Administrator"  or user=='administrator' :
-		return False
-
-	expires_on = get_limits().expiry
-	print('expires_on',expires_on)
-	if not expires_on:
-		return False
-	if now_datetime().date() <= getdate(expires_on):
-		return False
-
-	return True
+	return message
 
 def get_expiry_message():
 	if "System Manager" not in frappe.get_roles():
